@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BACF OCC Slot Tool v22</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        
+        body { font-family: 'Montserrat', sans-serif; transition: background 0.3s ease; }
+        .mono { font-family: 'JetBrains+Mono', monospace; }
+        .ba-blue { background-color: #002366; }
+        .ba-red { background-color: #D6001C; }
+        .ba-stripe { height: 4px; background: linear-gradient(90deg, #002366 0%, #002366 75%, #D6001C 75%, #D6001C 100%); }
+
+        body.dark-mode { background-color: #0f172a; }
+        .dark-mode .bg-white { background-color: #1e293b; color: #f1f5f9; border-color: #334155; }
+        .dark-mode input, .dark-mode select { background-color: #0f172a; color: white; border-color: #334155; }
+        
+        @media print { .no-print { display: none !important; } .bg-slate-900 { background: white !important; color: black !important; border: 1px solid #ccc !important; } textarea { color: black !important; } }
+    </style>
+</head>
+<body class="bg-slate-200 p-4 md:p-8" id="mainBody">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-300">
+        
+        <div class="ba-blue p-6 relative no-print">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-1 ba-red h-12"></div>
+                    <div>
+                        <h1 class="text-white text-3xl font-black tracking-tighter italic uppercase">BACF OCC</h1>
+                        <p class="text-blue-200 text-[11px] font-bold uppercase tracking-widest uppercase">Slot Messaging Console</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="toggleDarkMode()" class="text-xs font-bold text-white border border-white/20 px-3 py-1 rounded">NIGHT SHIFT</button>
+                    <button onclick="window.print()" class="ba-red text-white text-xs font-bold px-3 py-1 rounded shadow-lg">PRINT</button>
+                </div>
+            </div>
+        </div>
+        <div class="ba-stripe no-print"></div>
+
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 no-print items-end">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Flight No.</label>
+                    <input list="flightList" id="flightInput" oninput="handleSearch()" placeholder="3270" class="w-full border-b-2 border-slate-300 p-3 bg-slate-50 font-black text-xl outline-none">
+                    <datalist id="flightList"></datalist>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Suffix</label>
+                    <input type="text" id="suffix" maxlength="1" oninput="generateSCR()" placeholder="-" class="w-full border-b-2 border-slate-300 p-3 bg-slate-50 font-black text-xl outline-none uppercase text-blue-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Route <button onclick="swapRoute()" class="text-blue-600 hover:text-red-600 ml-1 underline">SWAP</button></label>
+                    <div class="flex gap-1">
+                        <input type="text" id="manualDep" oninput="generateSCR()" placeholder="DEP" class="w-1/2 border-b-2 border-slate-300 p-3 bg-slate-50 uppercase font-bold outline-none">
+                        <input type="text" id="manualArr" oninput="generateSCR()" placeholder="ARR" class="w-1/2 border-b-2 border-slate-300 p-3 bg-slate-50 uppercase font-bold outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase">Reason</label>
+                    <select id="delayReason" onchange="generateSCR()" class="w-full border-b-2 border-slate-300 p-3 bg-slate-50 font-bold text-xs outline-none">
+                        <option value="REQUEST">Standard Request</option>
+                        <option value="TECH">Technical / AOG</option>
+                        <option value="CREW">Crew Duty</option>
+                        <option value="ATC">ATC Delay</option>
+                        <option value="ROT">Rotational</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase">Action</label>
+                    <select id="action" onchange="toggleChangeUI()" class="w-full border-b-2 border-blue-800 p-3 font-black text-blue-900 bg-blue-50 outline-none">
+                        <option value="N">NEW (N)</option>
+                        <option value="D">DELETE (D)</option>
+                        <option value="CR">CHANGE (C/R)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="shiftPanel" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 bg-slate-900 p-6 rounded shadow-inner border-t-4 border-red-600 no-print">
+                <div class="md:col-span-2 grid grid-cols-2 gap-4 border-r border-slate-700 pr-4">
+                    <div class="col-span-2 mb-2">
+                        <label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Original Date (C)</label>
+                        <input type="date" id="opDate" onchange="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-2 text-white font-bold text-sm outline-none">
+                    </div>
+                    <div><label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Orig DEP Slot</label><input type="text" id="depSlot" value="1200" oninput="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-3 text-white font-mono text-xl outline-none"></div>
+                    <div><label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Orig ARR Slot</label><input type="text" id="arrSlot" value="1400" oninput="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-3 text-white font-mono text-xl outline-none"></div>
+                </div>
+                <div class="md:col-span-2 grid grid-cols-2 gap-4 pl-2">
+                    <div id="newDateDiv" class="hidden col-span-2 mb-2"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-tighter">New Date (R)</label><input type="date" id="newOpDate" onchange="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-2 text-white font-bold text-sm outline-none"></div>
+                    <div id="newDepDiv" class="hidden"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-widest">New DEP Slot</label><input type="text" id="newDepSlot" value="1215" oninput="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-3 text-white font-mono text-xl outline-none"></div>
+                    <div id="newArrDiv" class="hidden"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-widest">New ARR Slot</label><input type="text" id="newArrSlot" value="1415" oninput="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-3 text-white font-mono text-xl outline-none"></div>
+                </div>
+            </div>
+
+            <div id="outputContainer" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+        </div>
+    </div>
+
+    <script>
+        const ukIreland = ["LHR","LGW","LCY","STN","SEN","EDI","GLA","ABZ","MAN","BFS","BHD","DUB","ORK","SNN"];
+        const flightNumbers = ["2212","2213","2552","3270","3271","8700","8701"]; // Insert full list from previous versions
+        const list = document.getElementById('flightList');
+        flightNumbers.forEach(n => { const o = document.createElement('option'); o.value = n; list.appendChild(o); });
+        
+        document.getElementById('opDate').valueAsDate = new Date();
+        document.getElementById('newOpDate').valueAsDate = new Date();
+        let depDesignatorManual = null, arrDesignatorManual = null;
+
+        function swapRoute() {
+            const d = document.getElementById('manualDep').value;
+            const a = document.getElementById('manualArr').value;
+            document.getElementById('manualDep').value = a;
+            document.getElementById('manualArr').value = d;
+            generateSCR();
+        }
+
+        function toggleDarkMode() { document.getElementById('mainBody').classList.toggle('dark-mode'); }
+        function cycleDesignator(c) { const s = ["BA", "CJ", "A0"]; return s[(s.indexOf(c) + 1) % 3]; }
+        function toggleDep() { const c = document.getElementById('depDesignatorSpan').innerText; depDesignatorManual = cycleDesignator(c); generateSCR(); }
+        function toggleArr() { const c = document.getElementById('arrDesignatorSpan').innerText; arrDesignatorManual = cycleDesignator(c); generateSCR(); }
+
+        function handleSearch() {
+            const v = document.getElementById('flightInput').value;
+            depDesignatorManual = null; arrDesignatorManual = null;
+            document.getElementById('manualDep').value = v.startsWith("2") ? "LGW" : "LCY";
+            document.getElementById('manualArr').value = "XXX";
+            generateSCR();
+        }
+
+        function toggleChangeUI() {
+            const isCR = document.getElementById('action').value === 'CR';
+            document.getElementById('newDepDiv').classList.toggle('hidden', !isCR);
+            document.getElementById('newArrDiv').classList.toggle('hidden', !isCR);
+            document.getElementById('newDateDiv').classList.toggle('hidden', !isCR);
+            generateSCR();
+        }
+
+        function getAutoDesig(num, apt) {
+            if (num.startsWith("2")) return ukIreland.includes(apt) ? "BA" : "A0";
+            return (ukIreland.includes(apt) || apt === "AMS") ? "BA" : "CJ";
+        }
+
+        function generateSCR() {
+            const container = document.getElementById('outputContainer'); container.innerHTML = '';
+            const num = document.getElementById('flightInput').value;
+            const suff = document.getElementById('suffix').value.toUpperCase();
+            if (!num) return;
+
+            const depApt = document.getElementById('manualDep').value.toUpperCase();
+            const arrApt = document.getElementById('manualArr').value.toUpperCase();
+            const action = document.getElementById('action').value;
+            const reason = document.getElementById('delayReason').value;
+            const season = (new Date(document.getElementById('opDate').value).getMonth() < 3) ? "W25" : "S26";
+            const acft = num.startsWith("2") ? "177320" : "106E90";
+
+            const oDate = new Date(document.getElementById('opDate').value);
+            const nDate = new Date(document.getElementById('newOpDate').value);
+            const oDmmm = oDate.getDate().toString().padStart(2, '0') + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][oDate.getMonth()];
+            const nDmmm = nDate.getDate().toString().padStart(2, '0') + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][nDate.getMonth()];
+            const oDow = (d => { let s = ["0","0","0","0","0","0","0"]; let i = d.getDay() === 0 ? 7 : d.getDay(); s[i-1] = i.toString(); return s.join(""); })(oDate);
+            const nDow = (d => { let s = ["0","0","0","0","0","0","0"]; let i = d.getDay() === 0 ? 7 : d.getDay(); s[i-1] = i.toString(); return s.join(""); })(nDate);
+
+            const configs = [
+                {t: `${depApt} DEP`, apt: depApt, tgt: arrApt, oT: document.getElementById('depSlot').value, nT: document.getElementById('newDepSlot').value, sid: 'depDesignatorSpan', func: 'toggleDep()', desig: depDesignatorManual || getAutoDesig(num, arrApt)},
+                {t: `${arrApt} ARR`, apt: arrApt, tgt: depApt, oT: document.getElementById('arrSlot').value, nT: document.getElementById('newArrSlot').value, sid: 'arrDesignatorSpan', func: 'toggleArr()', desig: arrDesignatorManual || getAutoDesig(num, depApt)}
+            ];
+
+            configs.forEach(b => {
+                let msg = `SCR\n/bacityflyer.ops@ba.com\n${season}\n${oDmmm}\n${b.apt}\n`;
+                const isD = b.t.includes('DEP');
+                if(action === 'CR') {
+                    msg += `C${b.desig}${num} ${oDmmm}${oDmmm} ${oDow} ${acft} ${isD ? b.oT+b.tgt : b.tgt+b.oT} J\n`;
+                    msg += `R${b.desig}${num}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${isD ? b.nT+b.tgt : b.tgt+b.nT} J\n`;
+                } else {
+                    msg += `${action}${b.desig}${num}${suff} ${oDmmm}${oDmmm} ${oDow} ${acft} ${isD ? b.oT+b.tgt : b.tgt+b.oT} J\n`;
+                }
+                msg += `SI RGDS BACF OPS ${reason}\nGI BRGDS`;
+                renderBox(container, b.t, msg, b.desig, b.func, b.sid);
+            });
+        }
+
+        function renderBox(p, t, txt, desig, func, sid) {
+            const d = document.createElement('div');
+            d.className = "bg-slate-900 rounded border-l-4 border-blue-800 p-6 shadow-xl relative transition-all hover:border-red-600";
+            d.innerHTML = `
+                <div class="flex justify-between mb-4 border-b border-slate-700 pb-2">
+                    <button onclick="${func}" class="text-white text-[10px] font-black uppercase tracking-widest bg-blue-800 px-2 py-1 hover:bg-red-600 transition">${t} (<span id="${sid}">${desig}</span>)</button>
+                    <button onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.value); this.innerText='COPIED'" class="text-slate-500 hover:text-white text-[10px] font-bold uppercase tracking-tighter transition-all">Copy SCR</button>
+                </div>
+                <textarea readonly class="w-full h-44 bg-transparent text-green-400 mono text-sm outline-none resize-none leading-relaxed overflow-hidden">${txt}</textarea>`;
+            p.appendChild(d);
+        }
+    </script>
+</body>
+</html>
