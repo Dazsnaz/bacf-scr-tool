@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BACF OCC Slot Tool v24</title>
+    <title>BACF OCC Slot Tool v24 - Linked Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
         
         body { font-family: 'Montserrat', sans-serif; transition: background 0.3s ease; }
-        .mono { font-family: 'JetBrains+Mono', monospace; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
         .ba-blue { background-color: #002366; }
         .ba-red { background-color: #D6001C; }
         .ba-stripe { height: 4px; background: linear-gradient(90deg, #002366 0%, #002366 75%, #D6001C 75%, #D6001C 100%); }
@@ -18,7 +18,11 @@
         .dark-mode .bg-white { background-color: #1e293b; color: #f1f5f9; border-color: #334155; }
         .dark-mode input, .dark-mode select { background-color: #0f172a; color: white; border-color: #334155; }
         
-        @media print { .no-print { display: none !important; } .bg-slate-900 { background: white !important; color: black !important; border: 1px solid #ccc !important; } textarea { color: black !important; } }
+        @media print { 
+            .no-print { display: none !important; } 
+            .bg-slate-900 { background: white !important; color: black !important; border: 1px solid #ccc !important; } 
+            textarea { color: black !important; } 
+        }
     </style>
 </head>
 <body class="bg-slate-200 p-4 md:p-8" id="mainBody">
@@ -30,7 +34,7 @@
                     <div class="w-1 ba-red h-12"></div>
                     <div>
                         <h1 class="text-white text-3xl font-black tracking-tighter italic uppercase">BACF OCC</h1>
-                        <p class="text-blue-200 text-[11px] font-bold uppercase tracking-widest uppercase">Messaging Terminal</p>
+                        <p class="text-blue-200 text-[11px] font-bold uppercase tracking-widest">Messaging Terminal</p>
                     </div>
                 </div>
                 <div class="flex gap-4">
@@ -145,67 +149,82 @@
         }
 
         function generateSCR() {
-    const container = document.getElementById('outputContainer'); 
-    container.innerHTML = '';
-    const num = document.getElementById('flightInput').value;
-    const suff = document.getElementById('suffix').value.toUpperCase();
-    if (!num) return;
+            const container = document.getElementById('outputContainer'); container.innerHTML = '';
+            const num = document.getElementById('flightInput').value;
+            const suff = document.getElementById('suffix').value.toUpperCase();
+            if (!num) return;
 
-    const depApt = document.getElementById('manualDep').value.toUpperCase();
-    const arrApt = document.getElementById('manualArr').value.toUpperCase();
-    const action = document.getElementById('action').value;
-    const reason = document.getElementById('delayReason').value;
-    const acft = num.startsWith("2") ? "177320" : "106E90";
+            const depApt = document.getElementById('manualDep').value.toUpperCase();
+            const arrApt = document.getElementById('manualArr').value.toUpperCase();
+            const action = document.getElementById('action').value;
+            const reason = document.getElementById('delayReason').value;
+            const acft = num.startsWith("2") ? "177320" : "106E90";
 
-    const oDate = new Date(document.getElementById('opDate').value);
-    const nDate = new Date(document.getElementById('newOpDate').value);
-    const oDmmm = oDate.getDate().toString().padStart(2, '0') + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][oDate.getMonth()];
-    const nDmmm = nDate.getDate().toString().padStart(2, '0') + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][nDate.getMonth()];
-    const oDow = (d => { let s = ["0","0","0","0","0","0","0"]; let i = d.getDay() === 0 ? 7 : d.getDay(); s[i-1] = i.toString(); return s.join(""); })(oDate);
-    const nDow = (d => { let s = ["0","0","0","0","0","0","0"]; let i = d.getDay() === 0 ? 7 : d.getDay(); s[i-1] = i.toString(); return s.join(""); })(nDate);
-    const season = (oDate.getMonth() < 3 || oDate.getMonth() > 9) ? "W25" : "S26";
+            const oDate = new Date(document.getElementById('opDate').value);
+            const nDate = new Date(document.getElementById('newOpDate').value);
+            const oDmmm = oDate.getDate().toString().padStart(2, '0') + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][oDate.getMonth()];
+            const nDmmm = nDate.getDate().toString().padStart(2, '0') + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][nDate.getMonth()];
+            const oDow = (d => { let s = ["0","0","0","0","0","0","0"]; let i = d.getDay() === 0 ? 7 : d.getDay(); s[i-1] = i.toString(); return s.join(""); })(oDate);
+            const nDow = (d => { let s = ["0","0","0","0","0","0","0"]; let i = d.getDay() === 0 ? 7 : d.getDay(); s[i-1] = i.toString(); return s.join(""); })(nDate);
+            const season = (oDate.getMonth() < 3 || oDate.getMonth() > 9) ? "W25" : "S26";
 
-    // 1. Standard ARR/DEP Configs
-    const configs = [
-        {t: `${depApt} DEP`, apt: depApt, tgt: arrApt, oT: document.getElementById('depSlot').value, nT: document.getElementById('newDepSlot').value, sid: 'depDesignatorSpan', func: 'toggleDep()', desig: depDesignatorManual || getAutoDesig(num, arrApt)},
-        {t: `${arrApt} ARR`, apt: arrApt, tgt: depApt, oT: document.getElementById('arrSlot').value, nT: document.getElementById('newArrSlot').value, sid: 'arrDesignatorSpan', func: 'toggleArr()', desig: arrDesignatorManual || getAutoDesig(num, depApt)}
-    ];
+            const configs = [
+                {t: `${depApt} DEP`, apt: depApt, tgt: arrApt, oT: document.getElementById('depSlot').value, nT: document.getElementById('newDepSlot').value, sid: 'depDesignatorSpan', func: 'toggleDep()', desig: depDesignatorManual || getAutoDesig(num, arrApt)},
+                {t: `${arrApt} ARR`, apt: arrApt, tgt: depApt, oT: document.getElementById('arrSlot').value, nT: document.getElementById('newArrSlot').value, sid: 'arrDesignatorSpan', func: 'toggleArr()', desig: arrDesignatorManual || getAutoDesig(num, depApt)}
+            ];
 
-    configs.forEach(b => {
-        let msg = `SCR\n/bacityflyer.ops@ba.com\n${season}\n${oDmmm}\n${b.apt}\n`;
-        const isD = b.t.includes('DEP');
-        if(action === 'CR') {
-            msg += `C${b.desig}${num} ${oDmmm}${oDmmm} ${oDow} ${acft} ${isD ? b.oT+b.tgt : b.tgt+b.oT} J\n`;
-            msg += `R${b.desig}${num}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${isD ? b.nT+b.tgt : b.tgt+b.nT} J\n`;
-        } else {
-            msg += `${action}${b.desig}${num}${suff} ${oDmmm}${oDmmm} ${oDow} ${acft} ${isD ? b.oT+b.tgt : b.tgt+b.oT} J\n`;
+            // Render Standard DEP and ARR Messages
+            configs.forEach(b => {
+                let msg = `SCR\n/bacityflyer.ops@ba.com\n${season}\n${oDmmm}\n${b.apt}\n`;
+                const isD = b.t.includes('DEP');
+                if(action === 'CR') {
+                    msg += `C${b.desig}${num} ${oDmmm}${oDmmm} ${oDow} ${acft} ${isD ? b.oT+b.tgt : b.tgt+b.oT} J\n`;
+                    msg += `R${b.desig}${num}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${isD ? b.nT+b.tgt : b.tgt+b.nT} J\n`;
+                } else {
+                    msg += `${action}${b.desig}${num}${suff} ${oDmmm}${oDmmm} ${oDow} ${acft} ${isD ? b.oT+b.tgt : b.tgt+b.oT} J\n`;
+                }
+                msg += `SI ${reason}\nGI BRGDS BACF OPS`;
+                renderBox(container, b.t, msg, b.desig, b.func, b.sid, "md:col-span-1");
+            });
+
+            // Render Linked Turnaround Message for Arrival Airport
+            let linkedMsg = `SCR\n/bacityflyer.ops@ba.com\n${season}\n${oDmmm}\n${arrApt}\n`;
+            const desig = depDesignatorManual || getAutoDesig(num, depApt); // Using base designator logic
+            const oArrT = document.getElementById('arrSlot').value;
+            const oDepT = document.getElementById('depSlot').value;
+            
+            if(action === 'CR') {
+                const nArrT = document.getElementById('newArrSlot').value;
+                const nDepT = document.getElementById('newDepSlot').value;
+                linkedMsg += `C${desig}${num} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
+                linkedMsg += `R${desig}${num}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${depApt}${nArrT} ${nDepT}${depApt} J\n`;
+            } else {
+                linkedMsg += `${action}${desig}${num}${suff} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
+            }
+            linkedMsg += `SI ${reason}\nGI BRGDS BACF OPS`;
+            
+            // Render the linked box spanning the full width
+            renderBox(container, `${arrApt} TURNAROUND (LINKED)`, linkedMsg, desig, '', 'linkedDesigSpan', "md:col-span-2");
         }
-        msg += `SI ${reason}\nGI BRGDS BACF OPS`;
-        renderBox(container, b.t, msg, b.desig, b.func, b.sid);
-    });
 
-    // 2. NEW: Linked SCR Logic (Turnaround at Arrival Airport)
-    // Only shows if we have both times. Format: ARR-TIME DEP-TIME
-    let linkedMsg = `SCR\n/bacityflyer.ops@ba.com\n${season}\n${oDmmm}\n${arrApt}\n`;
-    const desig = depDesignatorManual || getAutoDesig(num, depApt);
-    const oArrT = document.getElementById('arrSlot').value;
-    const oDepT = document.getElementById('depSlot').value;
-    
-    if(action === 'CR') {
-        const nArrT = document.getElementById('newArrSlot').value;
-        const nDepT = document.getElementById('newDepSlot').value;
-        linkedMsg += `C${desig}${num} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
-        linkedMsg += `R${desig}${num}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${depApt}${nArrT} ${nDepT}${depApt} J\n`;
-    } else {
-        linkedMsg += `${action}${desig}${num}${suff} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
-    }
-    linkedMsg += `SI ${reason}\nGI BRGDS BACF OPS`;
-    
-    // Create a divider for the Linked version
-    const divider = document.createElement('div');
-    divider.className = "md:col-span-2 border-t border-slate-700 my-4 pt-4 text-slate-500 text-[10px] font-bold uppercase";
-    divider.innerText = "Linked Turnaround Message";
-    container.appendChild(divider);
-    
-    renderBox(container, `${arrApt} LINKED`, linkedMsg, desig, '', 'linkedDesig');
-}
+        // Updated renderBox to accept a column span class
+        function renderBox(p, t, txt, desig, func, sid, colSpanClass = "md:col-span-1") {
+            const d = document.createElement('div');
+            d.className = `bg-slate-900 rounded border-l-4 border-blue-800 p-6 shadow-xl relative transition-all hover:border-red-600 ${colSpanClass}`;
+            
+            // Only add the click handler if a function string is provided
+            const btnHtml = func 
+                ? `<button onclick="${func}" class="text-white text-[10px] font-black uppercase tracking-widest bg-blue-800 px-2 py-1 hover:bg-red-600 transition">${t} (<span id="${sid}">${desig}</span>)</button>`
+                : `<div class="text-white text-[10px] font-black uppercase tracking-widest bg-slate-700 px-2 py-1 inline-block">${t} (<span id="${sid}">${desig}</span>)</div>`;
+
+            d.innerHTML = `
+                <div class="flex justify-between mb-4 border-b border-slate-700 pb-2 no-print">
+                    ${btnHtml}
+                    <button onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.value); this.innerText='COPIED'" class="text-slate-500 hover:text-white text-[10px] font-bold uppercase transition-all">Copy SCR</button>
+                </div>
+                <textarea readonly class="w-full h-44 bg-transparent text-green-400 mono text-sm outline-none resize-none leading-relaxed overflow-hidden">${txt}</textarea>`;
+            p.appendChild(d);
+        }
+    </script>
+</body>
+</html>
