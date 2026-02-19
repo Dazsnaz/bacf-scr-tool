@@ -26,7 +26,7 @@
     </style>
 </head>
 <body class="bg-slate-200 p-4 md:p-8" id="mainBody">
-    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-300">
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-300">
         
         <div class="ba-blue p-6 relative no-print">
             <div class="flex justify-between items-center">
@@ -38,19 +38,23 @@
                     </div>
                 </div>
                 <div class="flex gap-4">
-                    <button onclick="toggleDarkMode()" class="text-xs font-bold text-white border border-white/20 px-3 py-1 rounded">NIGHT SHIFT</button>
-                    <button onclick="window.print()" class="ba-red text-white text-xs font-bold px-3 py-1 rounded shadow-lg">PRINT</button>
+                    <button onclick="toggleDarkMode()" class="text-xs font-bold text-white border border-white/20 px-3 py-1 rounded hover:bg-white/10 transition">NIGHT SHIFT</button>
+                    <button onclick="window.print()" class="ba-red text-white text-xs font-bold px-3 py-1 rounded shadow-lg hover:bg-red-700 transition">PRINT</button>
                 </div>
             </div>
         </div>
         <div class="ba-stripe no-print"></div>
 
         <div class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8 no-print items-end">
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 no-print items-end">
                 <div>
-                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Flight No.</label>
+                    <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Inbound Flt.</label>
                     <input list="flightList" id="flightInput" oninput="handleSearch()" placeholder="3270" class="w-full border-b-2 border-slate-300 p-3 bg-slate-50 font-black text-xl outline-none">
                     <datalist id="flightList"></datalist>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest">Outbound Flt.</label>
+                    <input type="text" id="turnFlightInput" oninput="generateSCR()" placeholder="3271" class="w-full border-b-2 border-blue-300 p-3 bg-blue-50 font-black text-xl outline-none text-blue-800">
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Suffix</label>
@@ -90,13 +94,13 @@
                         <label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Original Date (C)</label>
                         <input type="date" id="opDate" onchange="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-2 text-white font-bold text-sm outline-none">
                     </div>
-                    <div><label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Orig DEP</label><input type="text" id="depSlot" value="1200" oninput="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-3 text-white font-mono text-xl outline-none"></div>
-                    <div><label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Orig ARR</label><input type="text" id="arrSlot" value="1400" oninput="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-3 text-white font-mono text-xl outline-none"></div>
+                    <div><label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Orig DEP Time</label><input type="text" id="depSlot" value="1200" oninput="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-3 text-white font-mono text-xl outline-none"></div>
+                    <div><label class="block text-[9px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Orig ARR Time</label><input type="text" id="arrSlot" value="1400" oninput="generateSCR()" class="w-full bg-slate-800 border border-slate-700 p-3 text-white font-mono text-xl outline-none"></div>
                 </div>
                 <div class="md:col-span-2 grid grid-cols-2 gap-4 pl-2">
                     <div id="newDateDiv" class="hidden col-span-2 mb-2"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-tighter">New Date (R)</label><input type="date" id="newOpDate" onchange="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-2 text-white font-bold text-sm outline-none"></div>
-                    <div id="newDepDiv" class="hidden"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-widest">New DEP</label><input type="text" id="newDepSlot" value="1215" oninput="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-3 text-white font-mono text-xl outline-none"></div>
-                    <div id="newArrDiv" class="hidden"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-widest">New ARR</label><input type="text" id="newArrSlot" value="1415" oninput="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-3 text-white font-mono text-xl outline-none"></div>
+                    <div id="newDepDiv" class="hidden"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-widest">New DEP Time</label><input type="text" id="newDepSlot" value="1215" oninput="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-3 text-white font-mono text-xl outline-none"></div>
+                    <div id="newArrDiv" class="hidden"><label class="block text-[9px] font-bold text-blue-400 mb-1 uppercase tracking-widest">New ARR Time</label><input type="text" id="newArrSlot" value="1415" oninput="generateSCR()" class="w-full bg-slate-800 border-2 border-blue-800 p-3 text-white font-mono text-xl outline-none"></div>
                 </div>
             </div>
 
@@ -105,8 +109,7 @@
     </div>
 
     <script>
-        // Data and helper functions
-        const flightNumbers = ["2212","2213","2216","2217","2552","3270","3271","8700","8701"]; // Expand list as needed
+        const flightNumbers = ["2212","2213","2216","2217","2552","3270","3271","8700","8701"];
         const ukIreland = ["LHR","LGW","LCY","STN","SEN","EDI","GLA","ABZ","MAN","BFS","BHD","DUB","ORK","SNN"];
         
         const list = document.getElementById('flightList');
@@ -132,6 +135,15 @@
             depDesignatorManual = null; arrDesignatorManual = null;
             document.getElementById('manualDep').value = v.startsWith("2") ? "LGW" : "LCY";
             document.getElementById('manualArr').value = "XXX";
+            
+            // Auto-calculate the turnaround flight (Even + 1, Odd - 1)
+            if(v && !isNaN(v)) {
+                let tNum = parseInt(v);
+                document.getElementById('turnFlightInput').value = (tNum % 2 === 0) ? (tNum + 1) : (tNum - 1);
+            } else {
+                document.getElementById('turnFlightInput').value = "";
+            }
+
             generateSCR();
         }
 
@@ -151,6 +163,7 @@
         function generateSCR() {
             const container = document.getElementById('outputContainer'); container.innerHTML = '';
             const num = document.getElementById('flightInput').value;
+            const turnNum = document.getElementById('turnFlightInput').value || num; // Fallback to same if blank
             const suff = document.getElementById('suffix').value.toUpperCase();
             if (!num) return;
 
@@ -169,14 +182,15 @@
             const season = (oDate.getMonth() < 3 || oDate.getMonth() > 9) ? "W25" : "S26";
 
             const configs = [
-                {t: `${depApt} DEP`, apt: depApt, tgt: arrApt, oT: document.getElementById('depSlot').value, nT: document.getElementById('newDepSlot').value, sid: 'depDesignatorSpan', func: 'toggleDep()', desig: depDesignatorManual || getAutoDesig(num, arrApt)},
-                {t: `${arrApt} ARR`, apt: arrApt, tgt: depApt, oT: document.getElementById('arrSlot').value, nT: document.getElementById('newArrSlot').value, sid: 'arrDesignatorSpan', func: 'toggleArr()', desig: arrDesignatorManual || getAutoDesig(num, depApt)}
+                {t: `${depApt} DEP`, apt: depApt, tgt: arrApt, oT: document.getElementById('depSlot').value, nT: document.getElementById('newDepSlot').value, sid: 'depDesignatorSpan', func: 'toggleDep()', desig: depDesignatorManual || getAutoDesig(num, arrApt), isTurn: false},
+                {t: `${arrApt} ARR`, apt: arrApt, tgt: depApt, oT: document.getElementById('arrSlot').value, nT: document.getElementById('newArrSlot').value, sid: 'arrDesignatorSpan', func: 'toggleArr()', desig: arrDesignatorManual || getAutoDesig(num, depApt), isTurn: false}
             ];
 
-            // Render Standard DEP and ARR Messages
+            // 1. Render Standard DEP and ARR Messages
             configs.forEach(b => {
                 let msg = `SCR\n/bacityflyer.ops@ba.com\n${season}\n${oDmmm}\n${b.apt}\n`;
                 const isD = b.t.includes('DEP');
+                // Use main flight number for individual messages
                 if(action === 'CR') {
                     msg += `C${b.desig}${num} ${oDmmm}${oDmmm} ${oDow} ${acft} ${isD ? b.oT+b.tgt : b.tgt+b.oT} J\n`;
                     msg += `R${b.desig}${num}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${isD ? b.nT+b.tgt : b.tgt+b.nT} J\n`;
@@ -187,32 +201,34 @@
                 renderBox(container, b.t, msg, b.desig, b.func, b.sid, "md:col-span-1");
             });
 
-            // Render Linked Turnaround Message for Arrival Airport
+            // 2. Render Linked Turnaround Message for Arrival Airport
             let linkedMsg = `SCR\n/bacityflyer.ops@ba.com\n${season}\n${oDmmm}\n${arrApt}\n`;
-            const desig = depDesignatorManual || getAutoDesig(num, depApt); // Using base designator logic
+            
+            // Assume the same designator for inbound and outbound for simplicity, unless overridden
+            const arrDesig = arrDesignatorManual || getAutoDesig(num, depApt); // Inbound to ARR
+            const turnDesig = depDesignatorManual || getAutoDesig(turnNum, arrApt); // Outbound from ARR
+            
             const oArrT = document.getElementById('arrSlot').value;
             const oDepT = document.getElementById('depSlot').value;
             
+            // Format requires [Inbound] [Outbound]
             if(action === 'CR') {
                 const nArrT = document.getElementById('newArrSlot').value;
                 const nDepT = document.getElementById('newDepSlot').value;
-                linkedMsg += `C${desig}${num} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
-                linkedMsg += `R${desig}${num}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${depApt}${nArrT} ${nDepT}${depApt} J\n`;
+                linkedMsg += `C${arrDesig}${num} ${turnDesig}${turnNum} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
+                linkedMsg += `R${arrDesig}${num}${suff} ${turnDesig}${turnNum}${suff} ${nDmmm}${nDmmm} ${nDow} ${acft} ${depApt}${nArrT} ${nDepT}${depApt} J\n`;
             } else {
-                linkedMsg += `${action}${desig}${num}${suff} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
+                linkedMsg += `${action}${arrDesig}${num}${suff} ${turnDesig}${turnNum}${suff} ${oDmmm}${oDmmm} ${oDow} ${acft} ${depApt}${oArrT} ${oDepT}${depApt} J\n`;
             }
             linkedMsg += `SI ${reason}\nGI BRGDS BACF OPS`;
             
-            // Render the linked box spanning the full width
-            renderBox(container, `${arrApt} TURNAROUND (LINKED)`, linkedMsg, desig, '', 'linkedDesigSpan', "md:col-span-2");
+            renderBox(container, `${arrApt} TURNAROUND (LINKED)`, linkedMsg, `${arrDesig}/${turnDesig}`, '', 'linkedDesigSpan', "md:col-span-2");
         }
 
-        // Updated renderBox to accept a column span class
         function renderBox(p, t, txt, desig, func, sid, colSpanClass = "md:col-span-1") {
             const d = document.createElement('div');
             d.className = `bg-slate-900 rounded border-l-4 border-blue-800 p-6 shadow-xl relative transition-all hover:border-red-600 ${colSpanClass}`;
             
-            // Only add the click handler if a function string is provided
             const btnHtml = func 
                 ? `<button onclick="${func}" class="text-white text-[10px] font-black uppercase tracking-widest bg-blue-800 px-2 py-1 hover:bg-red-600 transition">${t} (<span id="${sid}">${desig}</span>)</button>`
                 : `<div class="text-white text-[10px] font-black uppercase tracking-widest bg-slate-700 px-2 py-1 inline-block">${t} (<span id="${sid}">${desig}</span>)</div>`;
